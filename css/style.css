@@ -46,10 +46,10 @@ div.list-student {
     border: 1px solid #ccc;
     margin: 25px;
     padding: 10px;
-    float: left;
+    flex: 7;
     background-color: rgba(221, 211, 211, 0.5) ;
     max-height: 300px;
-    overflow-y: auto;
+    overflow: auto;
 }
 .list-student-name {
     width: 400px;

@@ -93,9 +93,8 @@
 
         .all-tt-ds {
             display: flex;
-            flex-direction: column;
+            /* flex-direction: column;*/
             justify-content: center;
-            /* Để căn giữa theo chiều dọc */
             align-items: center;
             /* Để căn giữa theo chiều ngang */
             /* height: 900px; Đặt chiều cao tùy ý */
@@ -145,13 +144,15 @@
         }
 
         div.list-student {
-            /* width: 600px; */
+            /* width: 800px; */
             border: 1px solid #ccc;
             margin: 25px;
             padding: 10px;
             float: left;
             background-color: rgba(247, 242, 242, 0.5);
             border-radius: 10px 10px 10px 10px;
+            overflow: auto;
+            max-height: 500px;
         }
 
         .list-student-name {
@@ -176,7 +177,7 @@
         }
 
         div.list-student {
-            width: 800px;
+            width: 1000px;
         }
 
         h3 {
@@ -208,19 +209,11 @@
 </head>
 
 <body>
-    <!-- <header>
-        <nav>
-            <ul class="menu">
-                <li class="nutbam"><a href="#" id="button1">Thêm sinh viên</a></li>
-                <li class="nutbam"><a href="#" id="button2">Danh sách sinh viên</a></li>
-            </ul>
-        </nav>
-    </header> -->
-
+ 
     <div class="container">
         <!-- box trên cùng -->
         <div class="top-div">
-            <h1>QUẢN LÝ HỌC SINH</h1>
+            <h1>QUẢN LÝ SINH VIÊN</h1>
         </div>
         <!-- box bên dưới -->
         <div class="box-duoi">
@@ -266,28 +259,33 @@
                             <input type="text" id="address" />
                             <span id="address-error" class="error"></span>
                             <br />
+                            <label>Trạng thái</label>
+                            <input type="text" id="note" />
+                            <span id="address-error" class="error"></span>
+                            <br />
                             <label>Giới tính</label>
                             <input type="radio" name="gender" id="male" value="1" /> Nam
-                            <input type="radio" name="gender" id="famale" value="2" /> Nữ
+                            <input type="radio" name="gender" id="female" value="2" /> Nữ
                             <span id="gender-error" class="error"></span>
                             <br />
 
                             <label>&nbsp;</label>
                             <button class="button-add" onclick="save()">Thêm vào</button>
+                            <button class="button-add" onclick="change()"> Sửa </button>
 
                         </div>
                     </div>
                     <div id="content2" class="content">
                         <!-- Nội dung của Nút 2 -->
                         <div>
-                            <button id="getStudentsById" onclick="listStudentById()"> Tìm kiếm sinh viên </button>
+                            <button id="getStudentsById" onclick="listStudent()"> Tìm kiếm sinh viên </button>
                             <input id="getMaSv" type="text">
                         </div>
                         <div class="list-student" id="list-student">
                             <div class="list-student-name">
                             </div>
                             <!-- <h3>Danh sách sinh viên</h3> -->
-                            <table id="grid-students" width="800" border="1" cellpadding="0" cellpadding="0">
+                            <table id="grid-students" width="1000" border="1" cellpadding="0" cellpadding="0">
 
                             </table>
                         </div>
@@ -304,22 +302,7 @@
             return emailPattern.test(email);
         }
 
-        function save() {
-            console.log('save');
-            console.log('Im in');
-
-            let maSv = document.getElementById('maSv').value;
-            let fullname = document.getElementById('fullname').value;
-            let lopHanhChinh = document.getElementById('lopHanhChinh').value;
-            let email = document.getElementById('email').value;
-            let phone = document.getElementById('phone').value;
-            let address = document.getElementById('address').value;
-            let gender = '';
-            if (document.getElementById('male').checked) {
-                gender = document.getElementById('male').value;
-            } else if (document.getElementById('famale').checked) {
-                gender = document.getElementById('famale').value;
-            }
+        function checkInfor(maSv, fullname, lopHanhChinh, email, phone, address, gender) {
             // maSv
             if (_.isEmpty(maSv)) {
                 maSv = '';
@@ -395,8 +378,32 @@
             }
 
             if (fullname && email && address && gender && lopHanhChinh && maSv && phone) {
-                console.log(fullname);
-                console.log(email);
+                return true;
+            }
+            return false;
+        }
+
+        function save() {
+            console.log('save');
+            console.log('Im in');
+
+            let maSv = document.getElementById('maSv').value;
+            let fullname = document.getElementById('fullname').value;
+            let lopHanhChinh = document.getElementById('lopHanhChinh').value;
+            let email = document.getElementById('email').value;
+            let phone = document.getElementById('phone').value;
+            let address = document.getElementById('address').value;
+            let note = document.getElementById('note').value;
+            let gender = '';
+            if (document.getElementById('male').checked) {
+                gender = 'Nam';
+            } else if (document.getElementById('female').checked) {
+                gender = 'Nu';
+            }
+
+            if (checkInfor(maSv, fullname, lopHanhChinh, email, phone, address, gender)) {
+
+                console.log(gender);
 
                 url = "http://127.0.0.1:8000/save_userName";
                 fetch(url, {
@@ -411,7 +418,8 @@
                         email: email,
                         soDt: phone,
                         diaChi: address,
-                        gioiTinh: gender
+                        gioiTinh: gender,
+                        note: note
                     }),
                 })
                     .then((data) => {
@@ -423,78 +431,8 @@
             }
         }
 
-        function renderListStudent() {
-            fetch("http://127.0.0.1:8000/getStudents")
-                .then((response) => response.json())
-                .then((Data) => {
-                    // Lấy user đầu tiên từ mảng data
-                    console.log("Hello");
-                    // console.log(Data)
 
-                    let students = Data.data
-                    console.log(students.length);
-                    // console.log(students);
-                    if (students.length === 0) {
-                        document.getElementById('list-student').style.display = 'none';
-                        return false;
-                    }
-                    document.getElementById('list-student').style.display = 'block';
-
-                    let tableContent = `<tr>
-                    <td width='20'>#</td>
-                    <td>Mã sinh viên</td>
-                    <td>Họ và tên</td>
-                    <td>Lớp hành chính</td>
-                    <td>Điện thoại</td>
-                    <td>Email</td>
-                    <td>Địa chỉ</td>
-                    <td>Giới tính</td>
-                    <td>Trạng thái</td></tr>`;
-
-                    students.forEach((student, index) => {
-
-                        let studentId = index;
-                        let maSv = student[0];
-                        let fullname = student[1];
-                        let lopHanhChinh = student[2];
-                        let email = student[4];
-                        let phone = student[3];
-                        let address = student[5];
-                        let genderLabel = parseInt(student.gender) === 0 ? 'Nam' : 'Nữ';
-                        index++;
-
-                        console.log(studentId);
-                        console.log(fullname);
-                        console.log(email);
-                        console.log(phone);
-                        console.log(genderLabel);
-                        console.log(address);
-
-                        tableContent += ` <tr>
-                        <td>${index}</td>
-                        <td>${maSv}</td>
-                        <td>${fullname}</td>
-                        <td>${lopHanhChinh}</td>
-                        <td>${email}</td>
-                        <td>${phone}</td>
-                        <td>${genderLabel}</td>
-                        <td>${address}</td>
-                        <td>
-                            <a href='#'>Edit</a> | <a href='#'onclick='deleteStudent(${studentId})'>Xóa</a>
-                        </td>
-                        </tr>`;
-                    })
-
-                    document.getElementById('grid-students').innerHTML = tableContent;
-                });
-        }
-
-        function listStudentById() {
-            // let maSv = document.getElementById('getMaSv').value;
-            // if(maSv == '') {
-            //     alert('Vui lòng nhập mã sinh viên');
-            //     return false;
-            // }
+        function listStudent() {
 
             fetch("http://127.0.0.1:8000/getStudents")
                 .then((response) => response.json())
@@ -521,7 +459,8 @@
                     <td>Email</td>
                     <td>Địa chỉ</td>
                     <td>Giới tính</td>
-                    <td>Trạng thái</td></tr>`;
+                    <td>Trạng thái</td>
+                    <td>Chức năng</td></tr>`;
 
                     let keyword = document.getElementById('getMaSv').value.trim();
                     if (keyword == '') {
@@ -529,18 +468,19 @@
                     }
 
                     students.forEach((student, index) => {
-                        if(student[0] == keyword || student[1] == keyword || student[2] == keyword || student[3] == keyword || student[4] == keyword || student[5] == keyword || student[6] == keyword || keyword == null) {
+                        if (student[0].includes(keyword) || student[1].includes(keyword) || student[2].includes(keyword) || student[3].includes(keyword) || student[4].includes(keyword) || student[5].includes(keyword) || student[6].includes(keyword) || keyword == null) {
                             let studentId = index;
-                            let maSv = student[0];
+                            let maSinhVien = student[0];
                             let fullname = student[1];
                             let lopHanhChinh = student[2];
                             let email = student[4];
                             let phone = student[3];
                             let address = student[5];
-                            let genderLabel = parseInt(student.gender) === 0 ? 'Nam' : 'Nữ';
+                            let genderLabel = student[6];
+                            let note = student[7];
                             index++;
 
-                            console.log(studentId);
+                            console.log(maSinhVien);
                             console.log(fullname);
                             console.log(email);
                             console.log(phone);
@@ -549,15 +489,16 @@
 
                             tableContent += ` <tr>
                             <td>${index}</td>
-                            <td>${maSv}</td>
+                            <td>${maSinhVien}</td>
                             <td>${fullname}</td>
                             <td>${lopHanhChinh}</td>
-                            <td>${email}</td>
                             <td>${phone}</td>
-                            <td>${genderLabel}</td>
+                            <td>${email}</td>
                             <td>${address}</td>
+                            <td>${genderLabel}</td>
+                            <td>${note}</td>
                             <td>
-                                <a href='#'>Edit</a> | <a href='#'onclick='deleteStudent(${studentId})'>Xóa</a>
+                                <a href = '#' data-maSinhVien="${maSinhVien}" onclick='deleteStudent(this)'>Xóa</a>
                             </td>
                             </tr>`;
                         }
@@ -567,13 +508,76 @@
                 });
         }
 
-        
-        function deleteStudent(id) {
-            let students = localStorage.getItem('students') ? JSON.parse(localStorage.getItem('students')) : [];
-            students.splice(id, 1);
-            localStorage.setItem('students', JSON.stringify(students));
-            renderListStudent();
+        function deleteStudent(element) {
+            const maSinhVien = element.getAttribute('data-maSinhVien');
+            console.log(maSinhVien);
+            url = `http://127.0.0.1:8000/deleteStudent/${maSinhVien}`;
+            fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        console.log("Xoa thanh cong");
+                        // Xóa hàng tương ứng trên giao diện
+                        const rowToDelete = element.closest('tr');  // phương thức này tìm thẻ gần nhất có tên là tr mà có chứa liên kết này.
+                        rowToDelete.remove();
+                    } else
+                        console.log("Xoa that bai");
+                })
+                .catch((error) => {
+                    console.error("Error: loi khi xoa sinh vien");
+                });
         }
+
+        function change(element) {
+            let maSv = document.getElementById('maSv').value;
+            let fullname = document.getElementById('fullname').value;
+            let lopHanhChinh = document.getElementById('lopHanhChinh').value;
+            let email = document.getElementById('email').value;
+            let phone = document.getElementById('phone').value;
+            let address = document.getElementById('address').value;
+            let note = document.getElementById('note').value;
+            let gender = '';
+            if (document.getElementById('male').checked) {
+                gender = 'Nam';
+            } else if (document.getElementById('female').checked) {
+                gender = 'Nu';
+            }
+
+            if (checkInfor(maSv, fullname, lopHanhChinh, email, phone, address, gender)) {
+                console.log(fullname);
+                console.log(email);
+                console.log(note);
+
+                url = "http://127.0.0.1:8000/changeStudent";
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        maSv: maSv,
+                        fullName: fullname,
+                        lopHanhChinh: lopHanhChinh,
+                        email: email,
+                        soDt: phone,
+                        diaChi: address,
+                        gioiTinh: gender,
+                        note: note
+                    }),
+                })
+                    .then((data) => {
+                        console.log("Success:", data);
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                    });
+            }
+        }
+
         document.getElementById('button1').addEventListener('click', function () {
             document.getElementById('content1').style.display = 'block';
             document.getElementById('content2').style.display = 'none';
