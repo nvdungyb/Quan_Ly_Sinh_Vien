@@ -551,7 +551,12 @@
                 console.log(fullname);
                 console.log(email);
                 console.log(note);
-
+                
+                // Đoạn code này sử dụng javascript để gọi API thay đổi thông tin sinh viên từ phía client
+                // khai báo url là đường dẫn đến API changeStudent
+                // sử dụng phương thức fetch để gọi API
+                // body là object chứa thông tin sinh viên cần thay đổi, được chuyển thành chuỗi json
+                // sau khi gọi API thành công, thì in ra console.log, xử lý lỗi thì in ra console.error
                 url = "http://127.0.0.1:8000/changeStudent";
                 fetch(url, {
                     method: "POST",
