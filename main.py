@@ -96,18 +96,28 @@ def get_db():
     finally:
         db.close()
 
-
+# Đường dẫn / trong FastAPI để lấy thông tin từ database.
+# đường dẫn / được gọi là root.
 @app.get("/")
 async def index(db: Session = Depends(get_db)):
     cursor = con.cursor()
     cursor.execute("SELECT * FROM testing.users")
-    result = cursor.fetchall()
+    result = cursor.fetchall()                          # cho dữ liệu vào result.
     cursor.close()
     print('hello')
     
-    return {'data':result}
+    return {'data':result}                              # trả về root result.
 
-
+# app.get có tác dụng định nghĩa một hàm xử lý request GET tới đường dẫn /getStudents.
+# dùng để đánh dấu hàm phía dưới nó làm một hàm dùng để xử lý request GET.
+# Khi có request GET tới /getStudents thì hàm getStudents sẽ được gọi để xử lý request đó.
+# async def index(db: Session = Depends(get_db)): là một hàm bất đồng bộ, nó sẽ được chạy trên một thread riêng.
+# hàm này sẽ nhận vào một tham số db, tham số này sẽ được FastAPI inject vào khi gọi hàm getStudents.
+# Tham số này sẽ được lấy từ hàm get_db, hàm get_db sẽ trả về một đối tượng SessionLocal.
+# SessionLocal là một đối tượng được tạo ra từ sessionmaker, sessionmaker sẽ tạo ra một đối tượng SessionLocal.
+# SessionLocal là một đối tượng có thể tương tác với cơ sở dữ liệu thông qua engine.
+# engine là một đối tượng được tạo ra từ hàm create_engine, hàm này sẽ tạo ra một đối tượng engine.
+# engine này sẽ tạo ra một đối tượng kết nối đến cơ sở dữ liệu.
 @app.get("/getStudents")
 async def index(db: Session = Depends(get_db)):
     cursor = con.cursor()
@@ -117,7 +127,10 @@ async def index(db: Session = Depends(get_db)):
     print("hello")
     return {'data': result}
 
-
+# @app.delete có tác dụng định nghĩa một hàm xử lý request DELETE tới đường dẫn /deleteStudent.
+# dùng để đánh dấu hàm phía dưới nó làm một hàm dùng để xử lý request DELETE.
+# Khi có request DELETE tới /deleteStudent thì hàm deleteStudent sẽ được gọi để xử lý request đó.
+# {maSv} là một path parameter, nó sẽ được truyền vào hàm deleteStudent để xử lý.
 @app.delete("/deleteStudent/{maSv}")
 async def deleteStudent(maSv: str, db: Session = Depends(get_db)):
     cursor = con.cursor()
@@ -132,6 +145,9 @@ async def deleteStudent(maSv: str, db: Session = Depends(get_db)):
         cursor.close()
 
 
+# @app.POST("/changeStudent"): dùng để định nghĩa một hàm xử lý request POST tới đường dẫn /changeStudent.
+# dùng để đánh dấu hàm phía dưới nó làm một hàm dùng để xử lý request POST.
+# Khi có request POST tới /changeStudent thì hàm changeStudent sẽ được gọi để xử lý request đó.
 @app.post("/changeStudent")
 async def changeStudent(request: Request, bodyreq:dict):
     try:
